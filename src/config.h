@@ -6,3 +6,10 @@ const byte  RM = 8;   // set high while generating a ring output, low for other 
 const byte SHK = 9;   // switch hook input is high to indicate an off-hook condition, low for on-hook
 const byte ringButton = 10;  // button to generate a ring signal on the phone line
 const byte LED = 6; // LED to indicate on/off hook
+
+
+unsigned long edge;
+unsigned long lastDebounceTime;
+bool lastDebounceValue;
+bool pulsing;
+byte pulses;

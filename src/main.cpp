@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "config.h"
+#include "PulsHandler.h"
 
 // Target Hardware:  Uno, SLIC breakout board
 // https://github.com/GadgetReboot/DTMF_Decoder
@@ -16,32 +17,10 @@
 // a 20 Hz ring signal is generated.
 
 // pins for KS0835F module interface
-const byte F_R = 7;   // forward/reverse is toggled to produce ringing output, set low for other modes
-const byte  RM = 8;   // set high while generating a ring output, low for other modes
-const byte SHK = 9;   // switch hook input is high to indicate an off-hook condition, low for on-hook
-const byte ringButton = 10;  // button to generate a ring signal on the phone line
-const byte LED = 6; // LED to indicate on/off hook
 
 byte hookStatus = 1;  // track whether phone is on or off hook (0=off-hook 1=on-hook)
-bool lastDebounceValue = 0;
-unsigned long lastDebounceTime;
 
-
-
-
-
-
-
-
-void PulsHandler(int SHK){
-  bool newSHK = digitalRead(SHK);
-  if(newSHK != lastDebounceValue)
-    lastDebounceValue = newSHK;
-    lastDebounceTime = millis();
-}
-
-
-
+PulseHandler pulseHandler;
 
 void setup() {
   Serial.begin(9600);
@@ -66,6 +45,8 @@ void setup() {
   }
   Serial.println();
 
+  
+
 }
 
 // generate a test ring signal
@@ -87,15 +68,17 @@ void generateRingSignal() {
 }
 
 void loop() {
-
+  
   // ensure module is configured so KS0835F control pins
   // are set for non ringing standby mode at the start of each loop
   digitalWrite(F_R, LOW);  // set forward/reverse pin low for all modes except ringing
   digitalWrite(RM, LOW);   // set ring mode pin low for all modes except ringing
 
+  pulseHandler.handlePulse(digitalRead(SHK));
+
   // check if phone hook status has changed (just picked up or placed back on-hook)
   byte reading = digitalRead(SHK);
-  if (reading != hookStatus) {
+  if (reading != hookStatus && !pulsing) {
     if (hookStatus == 0) {
       Serial.println("Phone is OFF hook...");
       digitalWrite(LED, HIGH);
@@ -112,4 +95,6 @@ void loop() {
   if (!digitalRead(ringButton)) {
     generateRingSignal();
   }
+
+
 }
