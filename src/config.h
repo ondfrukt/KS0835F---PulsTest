@@ -9,7 +9,7 @@ const byte LED = 6; // LED to indicate on/off hook
 
 
 unsigned long edge;
-unsigned long lastDebounceTime;
-bool lastDebounceValue;
+unsigned long lastChangeTime = 0;
+bool lastHookStatus;
 bool pulsing;
 byte pulses;
