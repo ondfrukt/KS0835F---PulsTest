@@ -34,23 +34,19 @@ void pulseHandler::run(){
     lastDebounceValue = newSHK;
     lastDebounceTime = millis();
     return;
+
   }
   if((millis() - lastDebounceTime) < pulseGapMin) return;
 
   unsigned gap = edge ? millis() - edge : 0;
   if(newSHK && SHK && gap <= pulseGapMax) return; // SHK high and unchanged, skip until long gap between digits
   if(!newSHK && !SHK) return;                     // SHK low and unchanged, skip always
-  
-  // Check if the new pulse is detected within the minimum interval
-  if(newSHK && !SHK && (millis() - lastPulseTime) < minPulseInterval) return;
-  
   SHK = newSHK;
 
   // falling edge
   if(!SHK && !pulsing) {
     pulsing = true;
     edge = millis();
-    lastPulseTime = millis(); // Update last pulse time
     return;
   }
 
@@ -69,7 +65,7 @@ void pulseHandler::run(){
 
   // gap between digits
   if(SHK && !pulsing && gap > pulseGapMax){
-    pulses = pulses -1;
+    pulses = pulses - 1;
     char digit = String(pulses % 10)[0];
     pulsing = false;
     pulses = 0;
