@@ -1,46 +1,48 @@
 #include "pulseHandler.h"
 
-pulseHandler::pulseHandler(unsigned pinSHK, void (*callback)(bool)) {
+pulseHandler::pulseHandler(unsigned pinSHK) {
   PIN = pinSHK;
-  dialingStartedCallback = callback;
 }
 
 void pulseHandler::setDigitCallback(void (*callback)(char)) {
   digitReceivedCallback = callback;
 }
 
-void pulseHandler::setMaybeCallback(void (*callback)()){
-  maybeDialingStartedCallback = callback;
-}
-
 void pulseHandler::start(){
-  maybe = false;
   dialing = false;
   pulsing = false;
   pulses = 0;
   edge = 0;
   lastDebounceTime = millis();
+  lastDebounceValue = digitalRead(PIN);
 }
 
 void pulseHandler::run(){
   bool newSHK = digitalRead(PIN);
+  
+  //Debug: Print current state
+  // Serial.print("lastDebounceValue: "); Serial.print(lastDebounceValue);
+  // Serial.print(" newSHK: "); Serial.print(newSHK);
+  // Serial.print(" SHK: "); Serial.print(SHK);
+  // Serial.print(" pulses: "); Serial.print(pulses);
+  // Serial.print(" pulsing: "); Serial.print(pulsing);
+  // Serial.print(" edge: "); Serial.println(edge);
+
 
   // debounce because SHK from SLIC is very noisy
   if(newSHK != lastDebounceValue) {
-    if(!newSHK && !maybe) {
-      maybeDialingStartedCallback();   // used for stopping dialtone faster
-      maybe = true;
-    }
     lastDebounceValue = newSHK;
     lastDebounceTime = millis();
     return;
-
   }
+  
   if((millis() - lastDebounceTime) < pulseGapMin) return;
 
   unsigned gap = edge ? millis() - edge : 0;
+  //Serial.print("gap: "); Serial.println(gap);
   if(newSHK && SHK && gap <= pulseGapMax) return; // SHK high and unchanged, skip until long gap between digits
   if(!newSHK && !SHK) return;                     // SHK low and unchanged, skip always
+  
   SHK = newSHK;
 
   // falling edge
@@ -58,15 +60,14 @@ void pulseHandler::run(){
     if(!dialing){ 
       // NOTE: callback on rising edge because falling edge occurs when user hangs up and causes a brief "pulse dialing" mode change
       dialing = true;
-      dialingStartedCallback(false);
     }
     return;
   }
 
   // gap between digits
   if(SHK && !pulsing && gap > pulseGapMax){
-    pulses = pulses - 1;
-    char digit = String(pulses % 10)[0];
+    pulses = pulses - 1;  // Subtract 1 from pulses to get the correct digit
+    char digit = String(pulses % 10)[0];  // Convert number to character
     pulsing = false;
     pulses = 0;
     edge = 0;
