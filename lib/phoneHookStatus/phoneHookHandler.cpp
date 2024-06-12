@@ -11,7 +11,7 @@ phoneHookStatus::phoneHookStatus(const char* phoneLine, byte SHK_PIN, int LED_PI
   lastReading = hook;
 
   // Separat debouncing-fördröjning för varje instans
-  debounceDelay = 100; // Kan anpassas efter behov
+  debounceDelay = 500; // Kan anpassas efter behov
   lastDebounceTime = millis();
 }
 
@@ -39,7 +39,6 @@ byte phoneHookStatus::hookStatus() {
   lastReading = reading; // Uppdatera senaste läsningen
   return hook; // Returnera den debouncade statusen
 }
-
 void phoneHookStatus::printHookStatus() {
   Serial.print("hook"); Serial.print(line); Serial.print(" status: "); Serial.print(int(hook));
 }

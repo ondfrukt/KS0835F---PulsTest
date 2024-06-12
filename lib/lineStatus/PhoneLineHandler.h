@@ -2,10 +2,6 @@
 #define PhoneLineHandler
 #include "Arduino.h"
 
-#define ON_HOOK 0x01 // 00000001
-#define DIALING 0x02 // 00000010
-#define CALLING 0x04 // 00000100
-
 class LineHandler {
   public:
     // Konstruktor

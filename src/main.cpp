@@ -4,15 +4,6 @@
 #include <pulseHandler.h>
 #include <phoneHookHandler.h>
 
-// Callback-funktion för när uppringningen startar
-void myDialingStartedCallback(bool started) {
-    if (started) {
-        Serial.println("Dialing started!");
-    } else {
-        Serial.println("Dialing stopped!");
-    }
-}
-
 RingSignal ringLine[numberOfLines] = {
   RingSignal(L1_SHK, L1_RM, L1_FR),
   RingSignal(L2_SHK, L2_RM, L2_FR)};
@@ -24,12 +15,6 @@ pulseHandler pulser[numberOfLines] = {
 phoneHookStatus HookStatus[numberOfLines] = {
   phoneHookStatus(LINE_1, L1_SHK, LED1),
   phoneHookStatus(LINE_2, L2_SHK, LED2)};
-
-void digitReceivedCallback(char digit){
-  Serial.print(digit);    // debug output show digits as they are received
-  digits += digit;          // accumulate the digit
-  auto dlen = digits.length();
-}
 
 void setup() {
   //debug_init();
@@ -48,12 +33,9 @@ void setup() {
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   
-  
-
   Serial.println();
   Serial.println("KS0835F SLIC Demo");
 
-// Ange callback-funktioner för pulseHandler-instansen
   for (int i = 0; i < numberOfLines; i++){
     pulser[i].setDigitCallback(digitReceivedCallback);
     pulser[i].start();
@@ -74,6 +56,7 @@ void loop() {
   }
   
   for (int i = 0; i < numberOfLines; i++) {
+
       if (HookStatus[i].hookStatus() == 1) {
         pulser[i].run();
       }
@@ -98,4 +81,19 @@ void loop() {
     Serial.println();
   }
   delay(10);
+}
+
+// Callback-funktion för när uppringningen startar
+void myDialingStartedCallback(bool started) {
+    if (started) {
+        Serial.println("Dialing started!");
+    } else {
+        Serial.println("Dialing stopped!");
+    }
+}
+
+void digitReceivedCallback(char digit){
+  Serial.print(digit);    // debug output show digits as they are received
+  digits += digit;          // accumulate the digit
+  auto dlen = digits.length();
 }
