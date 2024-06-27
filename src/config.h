@@ -18,10 +18,6 @@ String digits;
 bool debug1 = false;
 bool debug2 = false;
 
-#define ON_HOOK 0x01 // 00000001
-#define DIALING 0x02 // 00000010
-#define CALLING 0x04 // 00000100
-
 #define LINE_1 "1"
 #define LINE_2 "2"
 

@@ -2,7 +2,7 @@
 #include "config.h"
 #include <RingSignal.h>
 #include <pulseHandler.h>
-#include <phoneHookHandler.h>
+#include <PhoneStatus.h>
 
 RingSignal ringLine[numberOfLines] = {
   RingSignal(L1_SHK, L1_RM, L1_FR),
@@ -11,10 +11,6 @@ RingSignal ringLine[numberOfLines] = {
 pulseHandler pulser[numberOfLines] = {
   pulseHandler(L1_SHK),
   pulseHandler(L2_SHK)};
-
-phoneHookStatus HookStatus[numberOfLines] = {
-  phoneHookStatus(LINE_1, L1_SHK, LED1),
-  phoneHookStatus(LINE_2, L2_SHK, LED2)};
 
 void setup() {
   //debug_init();
